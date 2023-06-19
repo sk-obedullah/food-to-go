@@ -34,6 +34,7 @@ public class OrderController {
 		OrderItemDTO orderItemDTO3=new OrderItemDTO("item3", 12.1);
 		OrderDTO orderDTO=new OrderDTO(List.of(orderItemDTO1,orderItemDTO2,orderItemDTO3),36.6);
 		Order createdOrder = orderService.createOrder(orderDTO);
+		System.out.println("Test Controller Executed successfully");
 		return orderDTO;
 	}
 
