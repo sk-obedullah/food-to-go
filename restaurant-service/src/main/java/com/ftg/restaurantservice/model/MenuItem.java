@@ -33,21 +33,16 @@ public class MenuItem {
 
 	@Column(nullable = false)
 	private double price;
-
-	@OneToOne
-	@JoinColumn(name = "id", nullable = false)
-	@JsonIgnore
-	private String Category;
-
-	@OneToOne
-	@JoinColumn(name = "id", nullable = false)
-	@JsonIgnore
-	private String Description;
-
+	
 	private String imageUrl;
 
+	private String Category;
+
+	private String Description;
+
+
 	@ManyToOne
-	@JoinColumn(name = "id", nullable = false)
+	@JoinColumn(name = "restaurant_id", nullable = false)
 	@JsonIgnore
 	private Restaurant restaurant;
 }
