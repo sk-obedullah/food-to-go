@@ -16,8 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+ 
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -41,24 +40,70 @@ public class Restaurant {
 
 	private String openingHour;
 
-	public void addItem(MenuItem item) {
-		menuItem.add(item);
-		item.setRestaurant(this);
+	public Long getRestaurantId() {
+		return restaurantId;
 	}
 
-	public void removeItem(MenuItem item) {
-		menuItem.remove(item);
-		item.setRestaurant(null);
+	public void setRestaurantId(Long restaurantId) {
+		this.restaurantId = restaurantId;
 	}
-	
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<MenuItem> getMenuItem() {
+		return menuItem;
+	}
+
+	public void setMenuItem(List<MenuItem> menuItem) {
+		for (MenuItem item : menuItem) {
+			item.setRestaurant(this);
+		}
+		this.menuItem = menuItem;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
 	public void setAddress(Address address) {
 		address.setRestaurant(this);
-		this.address=address;
+		this.address = address;
 	}
-	
+
+	public ContactDetails getContactDetails() {
+		return contactDetails;
+	}
+
 	public void setContactDetails(ContactDetails contactDetails) {
 		contactDetails.setRestaurant(this);
-		this.contactDetails=contactDetails;
+		this.contactDetails = contactDetails;
 	}
+
+	public String getOpeningHour() {
+		return openingHour;
+	}
+
+	public void setOpeningHour(String openingHour) {
+		this.openingHour = openingHour;
+	}
+
+
+	public void updateAddress(Address address) {
+		this.address.setAddress(address.getAddress());
+		this.address.setNearBy(address.getNearBy());
+		this.address.setZip(address.getZip());
+	}
+	
+	public void updateContactDetails(ContactDetails contactDetails) {
+		this.contactDetails.setEmail(contactDetails.getEmail());
+		this.contactDetails.setContactNumber(contactDetails.getContactNumber());
+	}
+	
 
 }

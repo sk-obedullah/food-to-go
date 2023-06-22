@@ -12,7 +12,7 @@ public interface RestauranSerive {
 	
 	List<RestaurantDTO> getAllRestaurats();
 	
-	RestaurantDTO updateRestaurant(RestaurantDTO restaurantDTO);
+	RestaurantDTO updateRestaurant(Long id,RestaurantDTO restaurantDTO);
 	
 	void deleteRestaurant(Long restaurantID);
 	

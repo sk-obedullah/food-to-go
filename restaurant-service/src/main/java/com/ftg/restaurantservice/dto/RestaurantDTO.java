@@ -17,6 +17,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RestaurantDTO {
 
+	private Long restaurantId;
+	
 	private String name;
 
 	private List<MenuItem> menuItem;
