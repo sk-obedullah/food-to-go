@@ -16,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
- 
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -93,17 +92,19 @@ public class Restaurant {
 		this.openingHour = openingHour;
 	}
 
-
 	public void updateAddress(Address address) {
-		this.address.setAddress(address.getAddress());
-		this.address.setNearBy(address.getNearBy());
-		this.address.setZip(address.getZip());
+		if (address != null) {
+			this.address.setAddress(address.getAddress());
+			this.address.setNearBy(address.getNearBy());
+			this.address.setZip(address.getZip());
+		}
 	}
-	
+
 	public void updateContactDetails(ContactDetails contactDetails) {
-		this.contactDetails.setEmail(contactDetails.getEmail());
-		this.contactDetails.setContactNumber(contactDetails.getContactNumber());
+		if (contactDetails != null) {
+			this.contactDetails.setEmail(contactDetails.getEmail());
+			this.contactDetails.setContactNumber(contactDetails.getContactNumber());
+		}
 	}
-	
 
 }
