@@ -17,6 +17,7 @@ import com.ftg.orderservice.dto.OrderDTO;
 import com.ftg.orderservice.dto.OrderItemDTO;
 import com.ftg.orderservice.models.Order;
 import com.ftg.orderservice.service.OrderServiceImpl;
+import com.ftg.orderservice.service.PaymentService;
 
 import lombok.AllArgsConstructor;
 
@@ -26,16 +27,13 @@ import lombok.AllArgsConstructor;
 public class OrderController {
 
 	private OrderServiceImpl orderService;
+	
+	private PaymentService paymentService;
 
-	@GetMapping("/test")
-	public OrderDTO test() {
-		OrderItemDTO orderItemDTO1=new OrderItemDTO("item1", 12.3);
-		OrderItemDTO orderItemDTO2=new OrderItemDTO("item2", 12.2);
-		OrderItemDTO orderItemDTO3=new OrderItemDTO("item3", 12.1);
-		OrderDTO orderDTO=new OrderDTO(List.of(orderItemDTO1,orderItemDTO2,orderItemDTO3),36.6);
-		Order createdOrder = orderService.createOrder(orderDTO);
-		System.out.println("Test Controller Executed successfully");
-		return orderDTO;
+	@GetMapping("/test/{orderId}")
+	public String test(@PathVariable String orderId) {
+		String initiatePament = paymentService.initiatePament(orderId);
+		return initiatePament;
 	}
 
 	@PostMapping

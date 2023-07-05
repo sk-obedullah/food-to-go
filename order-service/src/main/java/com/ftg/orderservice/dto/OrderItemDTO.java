@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class OrderItemDTO {
 
+	private Long id;
 	private String name;
 	private double price;
 }

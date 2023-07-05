@@ -145,7 +145,7 @@ public class RestauranController {
 			return ResponseEntity.ok(address);
 		} catch (ResourceNotFoundException e) {
 			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
+			throw  new ResourceNotFoundException("Restaurant", "ID", restaurantId);
 		} catch (Exception e) {
 			logger.error("Failed to retrieve address for restaurant with id {}: {}", restaurantId, e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve address");

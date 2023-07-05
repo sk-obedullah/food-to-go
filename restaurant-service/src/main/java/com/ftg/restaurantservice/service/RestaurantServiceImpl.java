@@ -134,6 +134,10 @@ public class RestaurantServiceImpl implements RestauranSerive {
 			Restaurant restaurant = restaurantRepository.findById(restaurantId)
 					.orElseThrow(() -> new ResourceNotFoundException("Restaurant", "ID", restaurantId));
 			return restaurant.getAddress();
+
+		} catch (ResourceNotFoundException e) {
+			logger.error("Failed to retrieve address for restaurant with id {}: {}", restaurantId, e.getMessage());
+			throw  new ResourceNotFoundException("Restaurant", "ID", restaurantId);
 		} catch (Exception e) {
 			logger.error("Failed to retrieve address for restaurant with id {}: {}", restaurantId, e.getMessage());
 			throw new IllegalStateException("Failed to retrieve address");

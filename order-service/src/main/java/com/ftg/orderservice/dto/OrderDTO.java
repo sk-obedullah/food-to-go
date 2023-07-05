@@ -15,8 +15,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class OrderDTO {
 	
+	private String orderId;
+	private Long userId;
+	private Long RestaurantId;
+	private String orderStatus;
 	private List<OrderItemDTO> items;
-    private double paymentAmount;
 
 
 }

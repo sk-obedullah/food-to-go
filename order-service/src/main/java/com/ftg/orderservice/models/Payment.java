@@ -1,6 +1,5 @@
 package com.ftg.orderservice.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -32,6 +31,8 @@ public class Payment {
 	private double amount;
 
 	private String paymentStatus;
+	
+	private String transactionId;
 	
 	@OneToOne
 	@JoinColumn(name = "order_id", nullable = false, unique = true)
