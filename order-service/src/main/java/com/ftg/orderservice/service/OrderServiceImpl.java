@@ -37,12 +37,14 @@ public class OrderServiceImpl {
 			item.setPrice(itemDTO.getPrice());
 			order.addItem(item);
 		}
-
+		order.setStatus(Constants.ORDER_CREATED);
 		Payment payment = new Payment();
 		payment.setAmount(calculate_total_price(orderDTO.getItems()));
 		payment.setPaymentStatus(Constants.PAYMENT_PENDING);
 		payment.setTransactionId("");
 		order.setPayment(payment);
+		order.setUserId(1L);
+		order.setTotalAmount(payment.getAmount());
 
 		return orderRepository.save(order);
 	}
