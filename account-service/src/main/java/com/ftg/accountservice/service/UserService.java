@@ -2,6 +2,7 @@ package com.ftg.accountservice.service;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ftg.accountservice.model.User;
@@ -14,14 +15,17 @@ import lombok.AllArgsConstructor;
 public class UserService {
 
 	UserRepository userRepository;
+	
+	PasswordEncoder passwordEncoder;
 
 	public User addUser(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		User retriveUser = userRepository.save(user);
 		return retriveUser;
 	}
 
 	public User getUserByuserName(String email) {
-		User userByuserName = userRepository.getUserByuserName(email);
+		User userByuserName = userRepository.getUserByEmail(email).get();
 		return userByuserName;
 	}
 

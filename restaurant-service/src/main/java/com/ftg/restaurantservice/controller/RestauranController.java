@@ -34,10 +34,9 @@ public class RestauranController {
 
 	private RestaurantServiceImpl restaurantService;
 
-	@RequestMapping("/test")
-	public ResponseEntity<?> test() {
-		return ResponseEntity.ok(new RestaurantDTO(1L, "testName", List.of(new MenuItem(), new MenuItem()),
-				new Address(), new ContactDetails(), "testOpeningHour"));
+	@GetMapping("/test")
+	public String cTest() {
+		return "Restaurant controller works";
 	}
 
 	@PostMapping
