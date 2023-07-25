@@ -30,6 +30,12 @@ public class OrderController {
 	
 	private PaymentService paymentService;
 
+	@GetMapping("/test")
+	public String cTest() {
+		return "Order controller works";
+	}
+	
+	
 	@GetMapping("/test/{orderId}")
 	public String test(@PathVariable String orderId) {
 		String initiatePament = paymentService.initiatePament(orderId);
