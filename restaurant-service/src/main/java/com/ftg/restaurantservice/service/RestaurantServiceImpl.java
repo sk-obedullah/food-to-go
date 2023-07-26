@@ -34,7 +34,7 @@ public class RestaurantServiceImpl implements RestauranSerive {
 		try {
 			Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
 			Restaurant save = restaurantRepository.save(restaurant);
-			RestaurantDTO dto = new RestaurantDTO(1L, save.getName(), save.getMenuItem(), save.getAddress(),
+			RestaurantDTO dto = new RestaurantDTO(save.getRestaurantId(), save.getName(), save.getMenuItem(), save.getAddress(),
 					save.getContactDetails(), save.getOpeningHour());
 			return dto;
 		} catch (Exception e) {
@@ -77,8 +77,8 @@ public class RestaurantServiceImpl implements RestauranSerive {
 		try {
 			Restaurant restaurant = restaurantRepository.findById(id).get();
 			restaurant.setName(restaurantDTO.getName());
-			restaurant.updateAddress(restaurantDTO.getAddress());
-			restaurant.updateContactDetails(restaurantDTO.getContactDetails());
+			//restaurant.updateAddress(restaurantDTO.getAddress());
+			//restaurant.updateContactDetails(restaurantDTO.getContactDetails());
 			restaurant.setMenuItem(restaurantDTO.getMenuItem());
 			restaurant.setOpeningHour(restaurantDTO.getOpeningHour());
 
@@ -158,7 +158,8 @@ public class RestaurantServiceImpl implements RestauranSerive {
 	public List<MenuItem> getMenuItems(Long restaurantId) {
 		try {
 			Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
-			return restaurant.getMenuItem();
+			throw new Exception();
+			//return restaurant.getMenuItem();
 		} catch (Exception e) {
 			logger.error("Failed to retrieve menu items for restaurant with id {}: {}", restaurantId, e.getMessage());
 			throw new IllegalStateException("Failed to retrieve menu items");
@@ -170,8 +171,8 @@ public class RestaurantServiceImpl implements RestauranSerive {
 			Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
 			menuItem.setRestaurant(restaurant);
 			restaurant.getMenuItem().add(menuItem);
-			restaurantRepository.save(restaurant);
-			return restaurant.getMenuItem().stream().filter(item -> item.getId().equals(menuItem.getId())).findFirst()
+			Restaurant save = restaurantRepository.save(restaurant);
+			return save.getMenuItem().stream().filter(item -> item.getName().equals(menuItem.getName())).findFirst()
 					.orElseThrow(() -> new IllegalStateException("Failed to create menu item"));
 
 		} catch (Exception e) {
