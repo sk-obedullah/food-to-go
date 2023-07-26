@@ -36,9 +36,9 @@ public class MenuItem {
 	
 	private String imageUrl;
 
-	private String Category;
+	private String category;
 
-	private String Description;
+	private String description;
 
 
 	@ManyToOne
