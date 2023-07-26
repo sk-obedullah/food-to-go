@@ -158,8 +158,7 @@ public class RestaurantServiceImpl implements RestauranSerive {
 	public List<MenuItem> getMenuItems(Long restaurantId) {
 		try {
 			Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
-			throw new Exception();
-			//return restaurant.getMenuItem();
+			return restaurant.getMenuItem();
 		} catch (Exception e) {
 			logger.error("Failed to retrieve menu items for restaurant with id {}: {}", restaurantId, e.getMessage());
 			throw new IllegalStateException("Failed to retrieve menu items");
