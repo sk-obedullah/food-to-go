@@ -1,5 +1,9 @@
 package com.ftg.accountservice.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.ftg.accountservice.dto.AuthRequest;
 import com.ftg.accountservice.model.User;
@@ -22,6 +27,8 @@ import lombok.AllArgsConstructor;
 @RequestMapping("api/user-service")
 @AllArgsConstructor
 public class UserController {
+	
+	private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	UserService userService;
 
@@ -40,12 +47,30 @@ public class UserController {
 		User addUser = userService.addUser(user);
 		return "Default User Added Successfully";
 	}
+	
+	@PostMapping("/register")
+	public ResponseEntity<User> registerUser(@RequestBody User user) {
+		try {
+			User addUser = userService.addUser(user);
+			return ResponseEntity.status(HttpStatus.CREATED).body(addUser);
+		} catch (Exception e) {
+			logger.error("Failed add User: {}", e.getMessage());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to register user");
+		}
+	}
+	
 
 	@GetMapping("/user/{email}")
-	public User addTestUser(@PathVariable String email) {
+	public User getUserByUserName(@PathVariable String email) {
 		User userByuserName = userService.getUserByuserName(email);
 		return userByuserName;
 	}
+	
+//	@GetMapping("/user")
+//	public User getUsers() {
+//		User userByuserName = userService.getUserByuserName1( );
+//		return userByuserName;
+//	}
 
 	// ------------------------------------------------------------------------//
 
