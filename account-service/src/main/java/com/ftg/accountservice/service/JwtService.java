@@ -1,10 +1,16 @@
 package com.ftg.accountservice.service;
 
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
@@ -21,8 +27,11 @@ public class JwtService {
 		Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
 	}
 
-	public String generateToken(String userName) {
+	public String generateToken(String userName, String role) {
 		Map<String, Object> claims = new HashMap<>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		claims.put("authorities", populateAuthorities(auth.getAuthorities()));
+		claims.put("role", role);
 		return createToken(claims, userName);
 	}
 
@@ -30,6 +39,14 @@ public class JwtService {
 		return Jwts.builder().setClaims(claims).setSubject(userName).setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+	}
+
+	private String populateAuthorities(Collection<? extends GrantedAuthority> collection) {
+		Set<String> authoritySet = new HashSet<>();
+		for (GrantedAuthority authority : collection) {
+			authoritySet.add(authority.getAuthority());
+		}
+		return String.join(",", authoritySet);
 	}
 
 	private Key getSignKey() {
