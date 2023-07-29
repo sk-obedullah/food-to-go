@@ -79,7 +79,8 @@ public class UserController {
 		Authentication authenticate = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
 		if (authenticate.isAuthenticated()) {
-			return authService.generateToken(authRequest.getUsername());
+			User userByuserName = userService.getUserByuserName(authRequest.getUsername());
+			return authService.generateToken(authRequest.getUsername(), userByuserName.getRole());
 		} else {
 			throw new RuntimeException("invalid access");
 		}

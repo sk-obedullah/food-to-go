@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -65,8 +66,10 @@ public class RestauranController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<RestaurantDTO>> getAllRestaurant() {
+	public ResponseEntity<List<RestaurantDTO>> getAllRestaurant(@RequestHeader("currentUser") String username,@RequestHeader("role") String role) {
 		try {
+			System.out.println("Logged In As--"+username+"-------------------------------");
+			System.out.println("Logged In As--"+role+"-------------------------------");
 			List<RestaurantDTO> allRestaurats = restaurantService.getAllRestaurats();
 			return ResponseEntity.ok(allRestaurats);
 		} catch (Exception e) {
