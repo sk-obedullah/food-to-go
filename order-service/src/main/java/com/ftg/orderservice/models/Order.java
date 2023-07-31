@@ -37,7 +37,7 @@ public class Order {
 	
 	private Long resturantId;
 	
-	private Long userId;
+	private String userId;
 	
 	private String status;
 	

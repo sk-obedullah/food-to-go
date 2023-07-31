@@ -16,7 +16,7 @@ import lombok.Setter;
 public class OrderDTO {
 	
 	private String orderId;
-	private Long userId;
+	private String userId;
 	private Long RestaurantId;
 	private String orderStatus;
 	private List<OrderItemDTO> items;

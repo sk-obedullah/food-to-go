@@ -1,6 +1,8 @@
 package com.ftg.orderservice.service;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.ftg.orderservice.ecxception.ResourceNotFoundException;
@@ -15,50 +17,53 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class PaymentService {
 
-	OrderRepository orderRepository;
-	
-	OrderServiceImpl orderServiceImpl;
-	
-	ModelMapper modelMapper;
-	
-	public String initiatePament(String OrderId) {
-		Payment pay = pay(OrderId);
-		
-		return pay.getPaymentStatus().equalsIgnoreCase(Constants.PAYMENT_SUCCESS)? pay.getTransactionId():"";
+	private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+
+	private OrderRepository orderRepository;
+	private OrderServiceImpl orderServiceImpl;
+	private ModelMapper modelMapper;
+
+	public String initiatePayment(String orderId) {
+		logger.info("Initiating payment for orderId: {}", orderId);
+		try {
+			Payment payment = pay(orderId);
+			return payment.getPaymentStatus().equalsIgnoreCase(Constants.PAYMENT_SUCCESS) ? payment.getTransactionId()
+					: "";
+		} catch (Exception e) {
+			logger.error("Error occurred while initiating payment for orderId: {}", orderId, e);
+			return "";
+		}
 	}
 
 	private Payment pay(String orderId) {
 		Order order = orderRepository.findByOrderId(orderId)
 				.orElseThrow(() -> new ResourceNotFoundException("Order", "OrderId", orderId));
+
 		Payment payment = order.getPayment();
-		double totalAmount =payment.getAmount();
-		Long userId = order.getUserId();
+		double totalAmount = payment.getAmount();
+		String userId = order.getUserId();
 
 		String transactionId = makePayment(totalAmount, userId, orderId);
+
 		if (transactionId.trim().length() > 0) {
 			payment.setPaymentStatus(Constants.PAYMENT_SUCCESS);
 			payment.setTransactionId(transactionId);
 			order.setPayment(payment);
-			 orderServiceImpl.updatePayment(orderId, payment);
+			order.setStatus(Constants.ORDER_CONFIRMED);
+			orderServiceImpl.updatePayment(orderId, payment);
 			return payment;
 		}
+
 		payment.setPaymentStatus(Constants.PAYMENT_FAILED);
+		order.setStatus(Constants.ORDER_FAILED);
 		return payment;
 	}
-	
-	
-	private String makePayment(double amoount, Long userId, String orderId) {
-		// get user account
-		// check balance
-		// debit from user account
-		// generate a transaction id
-		// add that transaction id to transactions table with all the details(orderId userId amount and transactionId)
-		// get order details
-		// get reatauranId from orderdetails
-		// get restaurant account
-		// credit the total amount to restaurant account
-		//update transaction table for restaurant as well
-		return "12vduvkkuge1324";
 
+	private String makePayment(double amount, String userId, String orderId) {
+		// Implementation of the payment logic goes here.
+		// It should handle the payment process and return the transaction ID.
+		// This is just a placeholder return for the sake of example.
+		Integer hashCode = userId.hashCode();
+		return hashCode.toString();
 	}
 }
