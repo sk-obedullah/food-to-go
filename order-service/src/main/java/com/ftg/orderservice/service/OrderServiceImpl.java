@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -23,84 +25,127 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class OrderServiceImpl {
 
+	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
 	private OrderRepository orderRepository;
-	
-	ModelMapper modelMapper;
+	private ModelMapper modelMapper;
 
 	public Order createOrder(OrderDTO orderDTO) {
-		Order order = new Order();
-		order.setOrderId(generateOrderId());
+		logger.info("Creating order...");
+		try {
+			Order order = new Order();
+			order.setOrderId(generateOrderId());
 
-		for (OrderItemDTO itemDTO : orderDTO.getItems()) {
-			OrderItem item = new OrderItem();
-			item.setName(itemDTO.getName());
-			item.setPrice(itemDTO.getPrice());
-			order.addItem(item);
+			for (OrderItemDTO itemDTO : orderDTO.getItems()) {
+				OrderItem item = new OrderItem();
+				item.setName(itemDTO.getName());
+				item.setPrice(itemDTO.getPrice());
+				order.addItem(item);
+			}
+			order.setStatus(Constants.ORDER_CREATED);
+
+			Payment payment = new Payment();
+			payment.setAmount(calculateTotalPrice(orderDTO.getItems()));
+			payment.setPaymentStatus(Constants.PAYMENT_PENDING);
+			payment.setTransactionId("");
+			order.setPayment(payment);
+
+			order.setUserId(orderDTO.getUserId());
+			order.setTotalAmount(payment.getAmount());
+
+			return orderRepository.save(order);
+		} catch (Exception e) {
+			logger.error("Error occurred while creating the order.", e);
+			throw e;
 		}
-		order.setStatus(Constants.ORDER_CREATED);
-		Payment payment = new Payment();
-		payment.setAmount(calculate_total_price(orderDTO.getItems()));
-		payment.setPaymentStatus(Constants.PAYMENT_PENDING);
-		payment.setTransactionId("");
-		order.setPayment(payment);
-		order.setUserId(1L);
-		order.setTotalAmount(payment.getAmount());
-
-		return orderRepository.save(order);
 	}
 
 	public Order getOrder(String orderId) {
-		Optional<Order> findByOrderId = orderRepository.findByOrderId(orderId);
-		if (!findByOrderId.isPresent()) {
-			throw new ResourceAccessException("");
+		logger.info("Getting order with orderId: {}", orderId);
+		try {
+			Optional<Order> findByOrderId = orderRepository.findByOrderId(orderId);
+			if (!findByOrderId.isPresent()) {
+				logger.error("Order with orderId: {} not found", orderId);
+				throw new ResourceAccessException("");
+			}
+			return findByOrderId.get();
+		} catch (Exception e) {
+			logger.error("Error occurred while fetching the order.", e);
+			throw e;
 		}
-		return findByOrderId.get();
 	}
 
 	public Order updateOrder(String orderId, OrderDTO orderDTO) {
-		Order order = getOrder(orderId);
+		logger.info("Updating order with orderId: {}", orderId);
+		try {
+			Order order = getOrder(orderId);
 
-		order.getItems().clear();
-		for (OrderItemDTO itemDTO : orderDTO.getItems()) {
-			OrderItem item = new OrderItem();
-			item.setName(itemDTO.getName());
-			item.setPrice(itemDTO.getPrice());
-			order.addItem(item);
+			order.getItems().clear();
+			for (OrderItemDTO itemDTO : orderDTO.getItems()) {
+				OrderItem item = new OrderItem();
+				item.setName(itemDTO.getName());
+				item.setPrice(itemDTO.getPrice());
+				order.addItem(item);
+			}
+
+			Payment payment = order.getPayment();
+			payment.setAmount(calculateTotalPrice(orderDTO.getItems()));
+			payment.setPaymentStatus(Constants.PAYMENT_PENDING);
+
+			return orderRepository.save(order);
+		} catch (Exception e) {
+			logger.error("Error occurred while updating the order.", e);
+			throw e;
 		}
-
-		Payment payment = order.getPayment();
-		payment.setAmount(calculate_total_price(orderDTO.getItems()));
-		payment.setPaymentStatus(Constants.PAYMENT_PENDING);
-
-		return orderRepository.save(order);
 	}
 
 	public void deleteOrder(String orderId) {
-		Order order = getOrder(orderId);
-		orderRepository.delete(order);
+		logger.info("Deleting order with orderId: {}", orderId);
+		try {
+			Order order = getOrder(orderId);
+			orderRepository.delete(order);
+		} catch (Exception e) {
+			logger.error("Error occurred while deleting the order.", e);
+			throw e;
+		}
 	}
 
 	public List<Order> getAllOrders() {
-		List<Order> findAll = orderRepository.findAll();
-		return findAll;
+		logger.info("Getting all orders...");
+		try {
+			List<Order> findAll = orderRepository.findAll();
+			return findAll;
+		} catch (Exception e) {
+			logger.error("Error occurred while fetching all orders.", e);
+			throw e;
+		}
 	}
 
-	public Payment updatePayment(String orderId,Payment updatedPayment) {
+	public Payment updatePayment(String orderId, Payment updatedPayment) {
+		logger.info("Updating payment for order with orderId: {}", orderId);
+		try {
+			Order order = orderRepository.findByOrderId(orderId)
+					.orElseThrow(() -> new ResourceNotFoundException("Order", "orderId", orderId));
 
-		Order order = orderRepository.findByOrderId(orderId).orElseThrow(()->new ResourceNotFoundException("Order", "orderId", orderId));
-		Payment payment = order.getPayment();
-		payment.setPaymentStatus(updatedPayment.getPaymentStatus());
-		payment.setTransactionId(updatedPayment.getTransactionId());
-		order.setPayment(payment);
-		orderRepository.save(order);
-		return payment;
+			Payment payment = order.getPayment();
+			payment.setPaymentStatus(updatedPayment.getPaymentStatus());
+			payment.setTransactionId(updatedPayment.getTransactionId());
+
+			order.setPayment(payment);
+			orderRepository.save(order);
+
+			return payment;
+		} catch (Exception e) {
+			logger.error("Error occurred while updating the payment.", e);
+			throw e;
+		}
 	}
 
 	private String generateOrderId() {
 		return UUID.randomUUID().toString();
 	}
 
-	private double calculate_total_price(List<OrderItemDTO> items) {
+	private double calculateTotalPrice(List<OrderItemDTO> items) {
 		return items.stream().mapToDouble(OrderItemDTO::getPrice).sum();
 	}
 }
