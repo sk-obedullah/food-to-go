@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ftg.orderservice.dto.OrderDTO;
 import com.ftg.orderservice.models.Order;
+import com.ftg.orderservice.rs.dto.RestaurantDTO;
 import com.ftg.orderservice.service.OrderServiceImpl;
 import com.ftg.orderservice.service.PaymentService;
+import com.ftg.orderservice.service.RestaurantClient;
 
 import lombok.AllArgsConstructor;
 
@@ -32,11 +34,14 @@ public class OrderController {
 
 	private OrderServiceImpl orderService;
 	private PaymentService paymentService;
+	private RestaurantClient restaurantClient;
 
 	@GetMapping("/test")
-	public String cTest() {
+	public ResponseEntity<?> cTest() {
 		logger.info("Entering cTest method.");
-		return "Order controller works";
+		ResponseEntity<List<RestaurantDTO>> allRestaurant = restaurantClient.getAllRestaurant("obedullah", "ADMIN");
+		List<RestaurantDTO> body = allRestaurant.getBody();
+		return   ResponseEntity.ok(body);
 	}
 
 	@GetMapping("/test/{orderId}")

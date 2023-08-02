@@ -48,15 +48,20 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 					request = exchange.getRequest().mutate().header("role", role).build();
 
 					if ("ROLE_ADMIN".equals(role)) {
-						if (exchange.getRequest().getPath().toString().contains("/api/restaurant-service")) {
+						if (exchange.getRequest().getPath().toString().contains("/api/admin/restaurant-service")) {
 							return chain.filter(exchange);
+						} else {
+							throw new RuntimeException("unauthorized access to the requested service");
 						}
-					} else if ("user".equals(role)) {
-						if (!exchange.getRequest().getPath().toString().contains("/api/restaurant-service")) {
+					} else if ("ROLE_USER".equals(role)) {
+						if (exchange.getRequest().getPath().toString().contains("/api/user/restaurant-service")) {
 							return chain.filter(exchange);
+						} else {
+							throw new RuntimeException("unauthorized access to the requested service");
 						}
+					} else {
+						throw new RuntimeException("unauthorized access to the requested service");
 					}
-					throw new RuntimeException("unauthorized access to the requested service");
 
 				} catch (Exception e) {
 					System.out.println("invalid access...!");
