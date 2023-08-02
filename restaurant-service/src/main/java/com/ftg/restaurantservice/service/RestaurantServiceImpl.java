@@ -32,6 +32,7 @@ public class RestaurantServiceImpl implements RestauranSerive {
 	@Override
 	public RestaurantDTO addRestaurant(RestaurantDTO restaurantDTO) {
 		try {
+			System.out.println("------------");
 			Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
 			Restaurant save = restaurantRepository.save(restaurant);
 			RestaurantDTO dto = new RestaurantDTO(save.getRestaurantId(), save.getName(), save.getMenuItem(), save.getAddress(),

@@ -27,28 +27,17 @@ import com.ftg.restaurantservice.service.RestaurantServiceImpl;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("api/restaurant-service")
+@RequestMapping("api/user/restaurant-service")
 @AllArgsConstructor
-public class RestauranController {
+public class RestauranControllerUser {
 
-	private final Logger logger = LoggerFactory.getLogger(RestauranController.class);
+	private final Logger logger = LoggerFactory.getLogger(RestauranControllerUser.class);
 
 	private RestaurantServiceImpl restaurantService;
 
-	@GetMapping("/test")
+	@GetMapping("/user-test")
 	public String cTest() {
-		return "Restaurant controller works";
-	}
-
-	@PostMapping
-	public ResponseEntity<RestaurantDTO> addRestaurant(@RequestBody RestaurantDTO restaurantDTO) {
-		try {
-			RestaurantDTO savedObj = restaurantService.addRestaurant(restaurantDTO);
-			return ResponseEntity.status(HttpStatus.CREATED).body(savedObj);
-		} catch (Exception e) {
-			logger.error("Failed to create restaurant: {}", e.getMessage());
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create restaurant");
-		}
+		return "Restaurant-user controller works";
 	}
 
 	@GetMapping("/{id}")
@@ -66,30 +55,16 @@ public class RestauranController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<RestaurantDTO>> getAllRestaurant(@RequestHeader("currentUser") String username,@RequestHeader("role") String role) {
+	public ResponseEntity<List<RestaurantDTO>> getAllRestaurant(@RequestHeader("currentUser") String username,
+			@RequestHeader("role") String role) {
 		try {
-			System.out.println("Logged In As--"+username+"-------------------------------");
-			System.out.println("Logged In As--"+role+"-------------------------------");
+			System.out.println("Logged In As--" + username + "-------------------------------");
+			System.out.println("Logged In As--" + role + "-------------------------------");
 			List<RestaurantDTO> allRestaurats = restaurantService.getAllRestaurats();
 			return ResponseEntity.ok(allRestaurats);
 		} catch (Exception e) {
 			logger.error("Failed to retrieve all restaurants: {}", e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve all restaurants");
-		}
-	}
-
-	@PutMapping("{id}")
-	public ResponseEntity<RestaurantDTO> updateRestaurant(@PathVariable Long id,
-			@RequestBody RestaurantDTO restaurantDTO) {
-		try {
-			RestaurantDTO savedObj = restaurantService.updateRestaurant(id, restaurantDTO);
-			return ResponseEntity.status(HttpStatus.OK).body(savedObj);
-		} catch (ResourceNotFoundException e) {
-			logger.error("Restaurant not found with id {}: {}", id, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
-		} catch (Exception e) {
-			logger.error("Failed to update restaurant with id {}: {}", id, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update restaurant");
 		}
 	}
 
@@ -109,35 +84,6 @@ public class RestauranController {
 		}
 	}
 
-	@PostMapping("/{restaurantId}/menu-items")
-	public ResponseEntity<MenuItem> createMenuItem(@PathVariable Long restaurantId, @RequestBody MenuItem menuItem) {
-		try {
-			MenuItem createMenuItem = restaurantService.createMenuItem(restaurantId, menuItem);
-			return ResponseEntity.ok().body(createMenuItem);
-		} catch (ResourceNotFoundException e) {
-			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
-		} catch (Exception e) {
-			logger.error("Failed to create menu item for restaurant with id {}: {}", restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create menu item");
-		}
-	}
-
-	@DeleteMapping("/{restaurantId}/menu-items/{menuItemId}")
-	public ResponseEntity<?> deleteMenuItem(@PathVariable Long restaurantId, @PathVariable Long menuItemId) {
-		try {
-			restaurantService.deleteMenuItem(restaurantId, menuItemId);
-			return ResponseEntity.ok("deleted successfully");
-		} catch (ResourceNotFoundException e) {
-			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
-		} catch (Exception e) {
-			logger.error("Failed to delete menu item with id {} for restaurant with id {}: {}", menuItemId,
-					restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete menu item");
-		}
-	}
-
 	// -------------------Address Specific Controller EndPoints-----------------//
 
 	@GetMapping("/{restaurantId}/address")
@@ -147,28 +93,12 @@ public class RestauranController {
 			return ResponseEntity.ok(address);
 		} catch (ResourceNotFoundException e) {
 			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
-			throw  new ResourceNotFoundException("Restaurant", "ID", restaurantId);
+			throw new ResourceNotFoundException("Restaurant", "ID", restaurantId);
 		} catch (Exception e) {
 			logger.error("Failed to retrieve address for restaurant with id {}: {}", restaurantId, e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve address");
 		}
 	}
-
-	@PutMapping("/{restaurantId}/address")
-	public ResponseEntity<Address> updateAddress(@PathVariable Long restaurantId, @RequestBody Address address) {
-		try {
-			Address updateAddress = restaurantService.updateAddress(restaurantId, address);
-			return ResponseEntity.ok(updateAddress);
-		} catch (ResourceNotFoundException e) {
-			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
-		} catch (Exception e) {
-			logger.error("Failed to update address for restaurant with id {}: {}", restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update address");
-		}
-	}
-
-	// ---------------------ContactDetails Specific EndPoints--------------------//
 
 	@GetMapping("/{restaurantId}/contact-details")
 	public ResponseEntity<ContactDetails> getContactDetails(@PathVariable Long restaurantId) {
@@ -182,22 +112,6 @@ public class RestauranController {
 			logger.error("Failed to retrieve contact details for restaurant with id {}: {}", restaurantId,
 					e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve contact details");
-		}
-	}
-
-	@PutMapping("/{restaurantId}/contact-details")
-	public ResponseEntity<ContactDetails> updateContactDetails(@PathVariable Long restaurantId,
-			@RequestBody ContactDetails contactDetails) {
-		try {
-			ContactDetails updateContactDetails = restaurantService.updateContactDetails(restaurantId, contactDetails);
-			return ResponseEntity.ok(updateContactDetails);
-		} catch (ResourceNotFoundException e) {
-			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
-		} catch (Exception e) {
-			logger.error("Failed to update contact details for restaurant with id {}: {}", restaurantId,
-					e.getMessage());
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update contact details");
 		}
 	}
 
