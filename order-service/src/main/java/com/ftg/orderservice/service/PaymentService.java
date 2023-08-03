@@ -51,11 +51,13 @@ public class PaymentService {
 			order.setPayment(payment);
 			order.setStatus(Constants.ORDER_CONFIRMED);
 			orderServiceImpl.updatePayment(orderId, payment);
+			orderRepository.save(order);
 			return payment;
 		}
 
 		payment.setPaymentStatus(Constants.PAYMENT_FAILED);
 		order.setStatus(Constants.ORDER_FAILED);
+		orderRepository.save(order);
 		return payment;
 	}
 

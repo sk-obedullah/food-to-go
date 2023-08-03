@@ -2,7 +2,7 @@ package com.ftg.orderservice.dto;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ftg.orderservice.rs.dto.MenuItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,13 +13,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDTO {
-	
+public class OrderResponseDTO {
+
 	private String orderId;
 	private String userId;
-	private Long restaurantId;
+	private Long RestaurantId;
 	private String orderStatus;
-	private List<Long> items;
-
+	private List<MenuItem> items;
 
 }
