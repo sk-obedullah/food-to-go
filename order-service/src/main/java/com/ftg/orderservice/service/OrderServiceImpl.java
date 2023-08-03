@@ -1,5 +1,6 @@
 package com.ftg.orderservice.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -7,16 +8,16 @@ import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
 import com.ftg.orderservice.dto.OrderDTO;
-import com.ftg.orderservice.dto.OrderItemDTO;
 import com.ftg.orderservice.ecxception.ResourceNotFoundException;
 import com.ftg.orderservice.models.Order;
-import com.ftg.orderservice.models.OrderItem;
 import com.ftg.orderservice.models.Payment;
 import com.ftg.orderservice.repository.OrderRepository;
+import com.ftg.orderservice.rs.dto.MenuItem;
 import com.ftg.orderservice.utils.Constants;
 
 import lombok.AllArgsConstructor;
@@ -29,30 +30,29 @@ public class OrderServiceImpl {
 
 	private OrderRepository orderRepository;
 	private ModelMapper modelMapper;
+	private RestaurantClient restaurantClient;
 
 	public Order createOrder(OrderDTO orderDTO) {
 		logger.info("Creating order...");
+		List<MenuItem> menuItems = new ArrayList<>();
 		try {
 			Order order = new Order();
 			order.setOrderId(generateOrderId());
-
-			for (OrderItemDTO itemDTO : orderDTO.getItems()) {
-				OrderItem item = new OrderItem();
-				item.setName(itemDTO.getName());
-				item.setPrice(itemDTO.getPrice());
-				order.addItem(item);
+			for (Long itemId : orderDTO.getItems()) {
+				ResponseEntity<MenuItem> menuItemByMenuId = restaurantClient
+						.getMenuItemByMenuId(orderDTO.getRestaurantId(), itemId);
+				menuItems.add(menuItemByMenuId.getBody());
 			}
 			order.setStatus(Constants.ORDER_CREATED);
-
+			order.setMenuItems(orderDTO.getItems());
+			order.setResturantId(orderDTO.getRestaurantId());
 			Payment payment = new Payment();
-			payment.setAmount(calculateTotalPrice(orderDTO.getItems()));
+			payment.setAmount(calculateTotalPrice(menuItems));
 			payment.setPaymentStatus(Constants.PAYMENT_PENDING);
 			payment.setTransactionId("");
 			order.setPayment(payment);
-
 			order.setUserId(orderDTO.getUserId());
 			order.setTotalAmount(payment.getAmount());
-
 			return orderRepository.save(order);
 		} catch (Exception e) {
 			logger.error("Error occurred while creating the order.", e);
@@ -79,17 +79,16 @@ public class OrderServiceImpl {
 		logger.info("Updating order with orderId: {}", orderId);
 		try {
 			Order order = getOrder(orderId);
-
-			order.getItems().clear();
-			for (OrderItemDTO itemDTO : orderDTO.getItems()) {
-				OrderItem item = new OrderItem();
-				item.setName(itemDTO.getName());
-				item.setPrice(itemDTO.getPrice());
-				order.addItem(item);
+			List<MenuItem> items = new ArrayList<>();
+			order.getMenuItems().clear();
+			for (Long itemId : orderDTO.getItems()) {
+				ResponseEntity<MenuItem> menuItemByMenuId = restaurantClient
+						.getMenuItemByMenuId(orderDTO.getRestaurantId(), itemId);
+				items.add(menuItemByMenuId.getBody());
+				order.getMenuItems().add(itemId);
 			}
-
 			Payment payment = order.getPayment();
-			payment.setAmount(calculateTotalPrice(orderDTO.getItems()));
+			payment.setAmount(calculateTotalPrice(items));
 			payment.setPaymentStatus(Constants.PAYMENT_PENDING);
 
 			return orderRepository.save(order);
@@ -121,6 +120,17 @@ public class OrderServiceImpl {
 		}
 	}
 
+	public List<Order> getUserOrders(String username) {
+		logger.info("Getting all orders for the user " + username + ".....");
+		try {
+			List<Order> findAll = orderRepository.findByUserId(username);
+			return findAll;
+		} catch (Exception e) {
+			logger.error("Error occurred while fetching all orders.for the user " + username, e);
+			throw e;
+		}
+	}
+
 	public Payment updatePayment(String orderId, Payment updatedPayment) {
 		logger.info("Updating payment for order with orderId: {}", orderId);
 		try {
@@ -145,7 +155,8 @@ public class OrderServiceImpl {
 		return UUID.randomUUID().toString();
 	}
 
-	private double calculateTotalPrice(List<OrderItemDTO> items) {
-		return items.stream().mapToDouble(OrderItemDTO::getPrice).sum();
+	private double calculateTotalPrice(List<MenuItem> items) {
+		return items.stream().mapToDouble(MenuItem::getPrice).sum();
 	}
+
 }

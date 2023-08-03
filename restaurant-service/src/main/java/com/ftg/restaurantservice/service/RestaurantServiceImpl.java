@@ -15,6 +15,7 @@ import com.ftg.restaurantservice.model.Address;
 import com.ftg.restaurantservice.model.ContactDetails;
 import com.ftg.restaurantservice.model.MenuItem;
 import com.ftg.restaurantservice.model.Restaurant;
+import com.ftg.restaurantservice.repository.MenuItemRepository;
 import com.ftg.restaurantservice.repository.RestaurantRepository;
 
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class RestaurantServiceImpl implements RestauranSerive {
 	private final Logger logger = LoggerFactory.getLogger(RestaurantServiceImpl.class);
 
 	private RestaurantRepository restaurantRepository;
-
+	private MenuItemRepository menuItemRepository;
 	private ModelMapper modelMapper;
 
 	@Override
@@ -35,8 +36,8 @@ public class RestaurantServiceImpl implements RestauranSerive {
 			System.out.println("------------");
 			Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
 			Restaurant save = restaurantRepository.save(restaurant);
-			RestaurantDTO dto = new RestaurantDTO(save.getRestaurantId(), save.getName(), save.getMenuItem(), save.getAddress(),
-					save.getContactDetails(), save.getOpeningHour());
+			RestaurantDTO dto = new RestaurantDTO(save.getRestaurantId(), save.getName(), save.getMenuItem(),
+					save.getAddress(), save.getContactDetails(), save.getOpeningHour());
 			return dto;
 		} catch (Exception e) {
 			logger.error("Failed to create restaurant: {}", e.getMessage());
@@ -78,8 +79,8 @@ public class RestaurantServiceImpl implements RestauranSerive {
 		try {
 			Restaurant restaurant = restaurantRepository.findById(id).get();
 			restaurant.setName(restaurantDTO.getName());
-			//restaurant.updateAddress(restaurantDTO.getAddress());
-			//restaurant.updateContactDetails(restaurantDTO.getContactDetails());
+			// restaurant.updateAddress(restaurantDTO.getAddress());
+			// restaurant.updateContactDetails(restaurantDTO.getContactDetails());
 			restaurant.setMenuItem(restaurantDTO.getMenuItem());
 			restaurant.setOpeningHour(restaurantDTO.getOpeningHour());
 
@@ -138,7 +139,7 @@ public class RestaurantServiceImpl implements RestauranSerive {
 
 		} catch (ResourceNotFoundException e) {
 			logger.error("Failed to retrieve address for restaurant with id {}: {}", restaurantId, e.getMessage());
-			throw  new ResourceNotFoundException("Restaurant", "ID", restaurantId);
+			throw new ResourceNotFoundException("Restaurant", "ID", restaurantId);
 		} catch (Exception e) {
 			logger.error("Failed to retrieve address for restaurant with id {}: {}", restaurantId, e.getMessage());
 			throw new IllegalStateException("Failed to retrieve address");
@@ -191,6 +192,37 @@ public class RestaurantServiceImpl implements RestauranSerive {
 					restaurantId, e.getMessage());
 			throw new IllegalStateException("Failed to delete menu item");
 		}
+	}
+
+	public MenuItem getMenuItemByMenuId(Long restaurantId, Long itemId) {
+		Optional<Restaurant> optionalRestaurant;
+		Optional<MenuItem> optionalMenuItem;
+		try {
+			optionalRestaurant = restaurantRepository.findById(restaurantId);
+		} catch (Exception e) {
+			logger.error("Failed to Retrieve menu item with id {} for restaurant with id {}: {}", itemId, restaurantId,
+					e.getMessage());
+			throw new IllegalStateException("Failed to delete menu item");
+		}
+
+		if (optionalRestaurant.isEmpty()) {
+			throw new ResourceNotFoundException("Restaurant", "RestaurantId", restaurantId);
+		}
+
+		try {
+			optionalMenuItem = menuItemRepository.findByRestaurantRestaurantIdAndId(restaurantId, itemId);
+		} catch (Exception e) {
+			logger.error("Failed to retrieve menu item with id {} for restaurant with id {}: {}", itemId, restaurantId,
+					e.getMessage());
+			throw new IllegalStateException("Failed to delete menu item");
+		}
+
+		if (optionalMenuItem.isEmpty()) {
+			throw new ResourceNotFoundException("MenuItem", "MenuId", restaurantId);
+		}
+
+		return optionalMenuItem.get();
+
 	}
 
 }

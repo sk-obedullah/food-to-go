@@ -84,6 +84,20 @@ public class RestauranControllerUser {
 		}
 	}
 
+	@GetMapping("/{restaurantId}/menu-items/{itemId}")
+	public ResponseEntity<MenuItem> getMenuItemByMenuId(@PathVariable Long restaurantId,@PathVariable Long itemId) {
+		try {
+			MenuItem menuItem = restaurantService.getMenuItemByMenuId(restaurantId,itemId);
+			return ResponseEntity.ok(menuItem);
+		} catch (ResourceNotFoundException e) {
+			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
+		} catch (Exception e) {
+			logger.error("Failed to retrieve menu items for restaurant with id {}: {}", restaurantId, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve menu items");
+		}
+	}
+	
 	// -------------------Address Specific Controller EndPoints-----------------//
 
 	@GetMapping("/{restaurantId}/address")

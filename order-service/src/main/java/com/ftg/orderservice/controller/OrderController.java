@@ -44,18 +44,7 @@ public class OrderController {
 		return   ResponseEntity.ok(body);
 	}
 
-	@GetMapping("/test/{orderId}")
-	public String test(@PathVariable String orderId) {
-		logger.info("Entering test method with orderId: " + orderId);
-		try {
-			String initiatePayment = paymentService.initiatePayment(orderId);
-			return initiatePayment;
-		} catch (Exception e) {
-			logger.error("An error occurred while processing the payment." + e.getMessage());
-			return "Error occurred while processing the payment.";
-		}
-	}
-
+	
 	@PostMapping
 	public ResponseEntity<Order> createOrder(@RequestBody OrderDTO orderDTO,
 			@RequestHeader("username") String username) {
@@ -70,8 +59,21 @@ public class OrderController {
 		}
 	}
 
+	@GetMapping("/pay/{orderId}")
+	public String test(@PathVariable String orderId) {
+		logger.info("Entering payment method with orderId: " + orderId);
+		try {
+			String initiatePayment = paymentService.initiatePayment(orderId);
+			return initiatePayment;
+		} catch (Exception e) {
+			logger.error("An error occurred while processing the payment." + e.getMessage());
+			return "Error occurred while processing the payment.";
+		}
+	}
+
+	
 	@GetMapping("/{orderId}")
-	public ResponseEntity<Order> getOrder(@PathVariable String orderId) {
+	public ResponseEntity<Order> getOrderByOrderId(@PathVariable String orderId) {
 		logger.info("Entering getOrder method with orderId: " + orderId);
 		try {
 			Order order = orderService.getOrder(orderId);
@@ -82,6 +84,18 @@ public class OrderController {
 		}
 	}
 
+	@GetMapping("/orders")
+	public ResponseEntity<List<Order>> getUserOrders(@RequestHeader("currentUser") String username) {
+		logger.info("Entering getUserOrders method  to get All Orders for: " + username);
+		try {
+			List<Order> orders= orderService.getUserOrders(username );
+			return ResponseEntity.ok(orders);
+		} catch (Exception e) {
+			logger.error("An error occurred while getting the orders for the user "+username +"::"+ e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
 	@PutMapping("/{orderId}")
 	public ResponseEntity<Order> updateOrder(@PathVariable String orderId, @RequestBody OrderDTO orderDTO) {
 		logger.info("Entering updateOrder method with orderId: " + orderId);
