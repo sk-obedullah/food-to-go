@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ import com.ftg.restaurantservice.service.RestaurantServiceImpl;
 
 import lombok.AllArgsConstructor;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("api/user/restaurant-service")
 @AllArgsConstructor
@@ -55,11 +57,8 @@ public class RestauranControllerUser {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<RestaurantDTO>> getAllRestaurant(@RequestHeader("currentUser") String username,
-			@RequestHeader("role") String role) {
+	public ResponseEntity<List<RestaurantDTO>> getAllRestaurant( ) {
 		try {
-			System.out.println("Logged In As--" + username + "-------------------------------");
-			System.out.println("Logged In As--" + role + "-------------------------------");
 			List<RestaurantDTO> allRestaurats = restaurantService.getAllRestaurats();
 			return ResponseEntity.ok(allRestaurats);
 		} catch (Exception e) {

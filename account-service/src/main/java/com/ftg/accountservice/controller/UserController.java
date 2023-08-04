@@ -41,12 +41,12 @@ public class UserController {
 		return "user service working";
 	}
 
-	@GetMapping("/addDefaultUser")
-	public String addTestUser() {
-		User user = new User(1l, "obedullah", "Obedullah@gmail.com", "Obed@8093", "ROLE_ADMIN", "Default User");
-		User addUser = userService.addUser(user);
-		return "Default User Added Successfully";
-	}
+//	@GetMapping("/addDefaultUser")
+//	public String addTestUser() {
+//		User user = new User(1l, "obedullah", "Obedullah@gmail.com", "Obed@8093", "ROLE_ADMIN", "Default User");
+//		User addUser = userService.addUser(user);
+//		return "Default User Added Successfully";
+//	}
 	
 	@PostMapping("/register")
 	public ResponseEntity<User> registerUser(@RequestBody User user) {
@@ -59,18 +59,18 @@ public class UserController {
 		}
 	}
 	
+	@GetMapping("/user/{email}")
+	public User getAllUsers() {
+		User userByuserName = userService.getAllUsers();
+		return userByuserName;
+	}
 
 	@GetMapping("/user/{email}")
 	public User getUserByUserName(@PathVariable String email) {
 		User userByuserName = userService.getUserByuserName(email);
 		return userByuserName;
 	}
-	
-//	@GetMapping("/user")
-//	public User getUsers() {
-//		User userByuserName = userService.getUserByuserName1( );
-//		return userByuserName;
-//	}
+ 
 
 	// ------------------------------------------------------------------------//
 

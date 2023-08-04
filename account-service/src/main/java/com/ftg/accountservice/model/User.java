@@ -45,6 +45,10 @@ public class User {
 	@Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,}$", message = "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number:")
 	private String password;
 
+	private String userMobile;
+
+	private String userCity;
+
 	private String role;
 
 	private String about;
