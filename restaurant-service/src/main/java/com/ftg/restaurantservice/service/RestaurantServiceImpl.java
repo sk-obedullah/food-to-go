@@ -34,13 +34,13 @@ public class RestaurantServiceImpl implements RestauranSerive {
 	@Override
 	public RestaurantDTO addRestaurant(RestaurantDTO restaurantDTO) {
 		try {
-			System.out.println("------------");
 			Restaurant restaurant = new Restaurant();
 			restaurant.setName(restaurantDTO.getName());
 			restaurant.setOpeningHour(restaurantDTO.getOpeningHour());
 			Address address = new Address();
 			address.setAddress(restaurantDTO.getRestaurantLocation());
 			restaurant.setAddress(address);
+			restaurant.setImageUrl(restaurantDTO.getRestaurantImage());
 			Restaurant save = restaurantRepository.save(restaurant);
 			RestaurantDTO dto = new RestaurantDTO(save.getRestaurantId(), save.getName(), save.getMenuItem(),
 					save.getAddress(),save.getAddress().getAddress(), save.getContactDetails(),"", save.getOpeningHour());

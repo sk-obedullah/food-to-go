@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ftg.accountservice.model.User;
+import com.ftg.accountservice.model.UserDTO;
 import com.ftg.accountservice.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
@@ -18,10 +19,16 @@ public class UserService {
 	
 	PasswordEncoder passwordEncoder;
 
-	public User addUser(User user) {
+	public UserDTO addUser(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		User retriveUser = userRepository.save(user);
-		return retriveUser;
+		UserDTO userDto = new UserDTO();
+		userDto.setUserEmail(retriveUser.getEmail());
+		userDto.setUserId(retriveUser.getId().intValue());
+		userDto.setUserCity(retriveUser.getUserCity());
+		userDto.setUserMobile(retriveUser.getUserMobile());
+		userDto.setUserName(retriveUser.getName());
+		return userDto;
 	}
 
 	public User getUserByuserName(String email) {
@@ -57,7 +64,7 @@ public class UserService {
 		User user = userRepository.findById(id).get();
 		user.setName(e.getName());
 		user.setPassword(e.getPassword());
-		user.setAbout(e.getAbout());
+		//user.setAbout(e.getAbout());
 
 		User save = userRepository.save(user);
 		return save;

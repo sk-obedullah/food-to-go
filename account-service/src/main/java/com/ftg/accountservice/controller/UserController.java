@@ -1,5 +1,8 @@
 package com.ftg.accountservice.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -7,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,22 +22,22 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.ftg.accountservice.dto.AuthRequest;
 import com.ftg.accountservice.model.User;
+import com.ftg.accountservice.model.UserDTO;
 import com.ftg.accountservice.service.AuthService;
 import com.ftg.accountservice.service.UserService;
 
 import lombok.AllArgsConstructor;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("api/user-service")
 @AllArgsConstructor
 public class UserController {
-	
+
 	private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	UserService userService;
-
 	private AuthService authService;
-
 	private AuthenticationManager authenticationManager;
 
 	@GetMapping("/test")
@@ -41,28 +45,38 @@ public class UserController {
 		return "user service working";
 	}
 
-//	@GetMapping("/addDefaultUser")
-//	public String addTestUser() {
-//		User user = new User(1l, "obedullah", "Obedullah@gmail.com", "Obed@8093", "ROLE_ADMIN", "Default User");
-//		User addUser = userService.addUser(user);
-//		return "Default User Added Successfully";
-//	}
-	
 	@PostMapping("/register")
-	public ResponseEntity<User> registerUser(@RequestBody User user) {
+	public ResponseEntity<UserDTO> registerUser(@RequestBody UserDTO userDTO) {
 		try {
-			User addUser = userService.addUser(user);
+			User user=new User();
+			user.setName(userDTO.getUserName());
+			user.setEmail(userDTO.getUserEmail());
+			user.setUserCity(userDTO.getUserCity());
+			user.setUserMobile(userDTO.getUserMobile());
+			user.setPassword(userDTO.getUserPassword());
+			user.setRole("ROLE_USER");
+			UserDTO addUser = userService.addUser(user);
 			return ResponseEntity.status(HttpStatus.CREATED).body(addUser);
 		} catch (Exception e) {
 			logger.error("Failed add User: {}", e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to register user");
 		}
 	}
-	
-	@GetMapping("/user/{email}")
-	public User getAllUsers() {
-		User userByuserName = userService.getAllUsers();
-		return userByuserName;
+
+	@GetMapping()
+	public List<UserDTO> getAllUsers() {
+		List<UserDTO> userDTOs = new ArrayList<>();
+		List<User> users = userService.getAll();
+		for (User user : users) {
+			UserDTO userDto = new UserDTO();
+			userDto.setUserEmail(user.getEmail());
+			userDto.setUserId(user.getId().intValue());
+			userDto.setUserCity(user.getUserCity());
+			userDto.setUserMobile(user.getUserMobile());
+			userDto.setUserName(user.getName());
+			userDTOs.add(userDto);
+		}
+		return userDTOs;
 	}
 
 	@GetMapping("/user/{email}")
@@ -70,7 +84,6 @@ public class UserController {
 		User userByuserName = userService.getUserByuserName(email);
 		return userByuserName;
 	}
- 
 
 	// ------------------------------------------------------------------------//
 

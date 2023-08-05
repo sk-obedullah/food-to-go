@@ -18,6 +18,8 @@ import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "restaurants")
 public class Restaurant {
@@ -38,6 +40,8 @@ public class Restaurant {
 	private ContactDetails contactDetails;
 
 	private String openingHour;
+	
+	private String imageUrl;
 
 	public Long getRestaurantId() {
 		return restaurantId;
