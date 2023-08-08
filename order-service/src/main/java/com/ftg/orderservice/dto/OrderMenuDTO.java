@@ -1,5 +1,7 @@
 package com.ftg.orderservice.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,12 +13,13 @@ import lombok.Setter;
 @Setter
 public class OrderMenuDTO {
 
+	private String userId;
 	private String restaurantId;
-	private int orderId;
+	private String orderId;
 	private String address;
 	private String amount;
 	private String mode;
 	private String time;
-	private int[] menuItemIds;
+	private List<Long> menuItemIds;
 
 }

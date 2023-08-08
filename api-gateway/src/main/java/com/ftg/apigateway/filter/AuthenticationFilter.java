@@ -47,20 +47,34 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 					String role = claims.get("role", String.class);
 					request = exchange.getRequest().mutate().header("role", role).build();
 
-					if ("ROLE_ADMIN".equals(role)) {
-						if (exchange.getRequest().getPath().toString().contains("/api/admin/restaurant-service")) {
-							return chain.filter(exchange);
-						} else {
-							throw new RuntimeException("unauthorized access to the requested service");
-						}
-					} else if ("ROLE_USER".equals(role)) {
-						if (exchange.getRequest().getPath().toString().contains("/api/user/restaurant-service")) {
-							return chain.filter(exchange);
-						} else {
-							throw new RuntimeException("unauthorized access to the requested service");
-						}
+//					if ("ROLE_ADMIN".equals(role)) {
+//						if (exchange.getRequest().getPath().toString().contains("/api/admin/restaurant-service")) {
+//							return chain.filter(exchange);
+//						} else {
+//							throw new RuntimeException("unauthorized access to the requested service");
+//						}
+//					} else if ("ROLE_USER".equals(role)) {
+//						if (exchange.getRequest().getPath().toString().contains("/api/user/restaurant-service")) {
+//							return chain.filter(exchange);
+//						} else {
+//							throw new RuntimeException("unauthorized access to the requested service");
+//						}
+//					} else {
+//						throw new RuntimeException("unauthorized access to the requested service");
+//					}
+
+//					if ("ROLE_ADMIN".equals(role) && isAdminEndpoint(request)) {
+//						return chain.filter(exchange);
+//					} else if ("ROLE_USER".equals(role) && isUserEndpoint(request)) {
+//						return chain.filter(exchange);
+//					} else {
+//						throw new RuntimeException("Unauthorized access to the requested service");
+//					}
+
+					if ("ROLE_ADMIN".equals(role) || ("ROLE_USER".equals(role) && isUserEndpoint(request))) {
+						return chain.filter(exchange);
 					} else {
-						throw new RuntimeException("unauthorized access to the requested service");
+						throw new RuntimeException("Unauthorized access to the requested service");
 					}
 
 				} catch (Exception e) {
@@ -70,6 +84,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 			}
 			return chain.filter(exchange.mutate().request(request).build());
 		});
+	}
+
+//	private boolean isAdminEndpoint(ServerHttpRequest request) {
+//		return request.getPath().toString().contains("/api/admin/");
+//	}
+
+	private boolean isUserEndpoint(ServerHttpRequest request) {
+		return request.getPath().toString().contains("/api/user/");
 	}
 
 	public static class Config {

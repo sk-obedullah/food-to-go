@@ -37,7 +37,7 @@ public class RestauranControllerUser {
 
 	private RestaurantServiceImpl restaurantService;
 
-	@GetMapping("/user-test")
+	@GetMapping("/test")
 	public String cTest() {
 		return "Restaurant-user controller works";
 	}

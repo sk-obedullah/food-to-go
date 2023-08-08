@@ -29,7 +29,7 @@ import lombok.AllArgsConstructor;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("api/order-service")
+@RequestMapping("api/user/order-service")
 @AllArgsConstructor
 public class OrderController {
 
@@ -40,11 +40,8 @@ public class OrderController {
 	private RestaurantClient restaurantClient;
 
 	@GetMapping("/test")
-	public ResponseEntity<?> cTest() {
-		logger.info("Entering cTest method.");
-		ResponseEntity<List<RestaurantDTO>> allRestaurant = restaurantClient.getAllRestaurant("obedullah", "ADMIN");
-		List<RestaurantDTO> body = allRestaurant.getBody();
-		return   ResponseEntity.ok(body);
+	public String cTest() {
+		return "order controller works";
 	}
 
 	
@@ -53,8 +50,11 @@ public class OrderController {
 			 ) {
 		logger.info("Entering createOrder method.");
 		try {
-			
 			OrderDTO dto=new OrderDTO();
+			dto.setItems(orderDTO.getMenuItemIds());
+			dto.setOrderId(orderDTO.getOrderId());
+			dto.setRestaurantId(Long.parseLong(orderDTO.getRestaurantId()));
+			dto.setUserId(orderDTO.getUserId());
 			
 			Order createdOrder = orderService.createOrder(dto);
 			return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
@@ -113,28 +113,5 @@ public class OrderController {
 		}
 	}
 
-	@DeleteMapping("/{orderId}")
-	public ResponseEntity<Void> deleteOrder(@PathVariable String orderId) {
-		logger.info("Entering deleteOrder method with orderId: " + orderId);
-		try {
-			orderService.deleteOrder(orderId);
-			return ResponseEntity.noContent().build();
-		} catch (Exception e) {
-			logger.error("An error occurred while deleting the order." + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
-	}
-
-	@GetMapping
-	public ResponseEntity<List<Order>> getAllOrders() {
-		logger.info("Entering getAllOrders method.");
-		try {
-			List<Order> orders = orderService.getAllOrders();
-			return ResponseEntity.ok(orders);
-		} catch (Exception e) {
-			logger.error("An error occurred while fetching all orders." + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
-	}
-
+	
 }

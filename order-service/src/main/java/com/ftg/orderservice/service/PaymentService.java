@@ -3,8 +3,10 @@ package com.ftg.orderservice.service;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.ftg.orderservice.dto.StatusUpdateDTO;
 import com.ftg.orderservice.ecxception.ResourceNotFoundException;
 import com.ftg.orderservice.models.Order;
 import com.ftg.orderservice.models.Payment;
@@ -22,6 +24,8 @@ public class PaymentService {
 	private OrderRepository orderRepository;
 	private OrderServiceImpl orderServiceImpl;
 	private ModelMapper modelMapper;
+	private OrderStatusService orderStatusService;
+	private RestaurantClient restaurantClient;
 
 	public String initiatePayment(String orderId) {
 		logger.info("Initiating payment for orderId: {}", orderId);
@@ -51,12 +55,22 @@ public class PaymentService {
 			order.setPayment(payment);
 			order.setStatus(Constants.ORDER_CONFIRMED);
 			orderServiceImpl.updatePayment(orderId, payment);
+			orderStatusService.updateStatus(new StatusUpdateDTO(orderId, Constants.ORDER_CONFIRMED, "10min"));
+			try {
+				System.out.println("000000000000000000000000000");
+				ResponseEntity<String> prepareOrder = restaurantClient.prepareOrder(orderId);
+				System.out.println("11111111111111111111111111111");
+			} catch (InterruptedException e) {
+				logger.error("restaurant service failed to create order for the id ::"+orderId);
+				e.printStackTrace();
+			}
 			orderRepository.save(order);
 			return payment;
 		}
 
 		payment.setPaymentStatus(Constants.PAYMENT_FAILED);
 		order.setStatus(Constants.ORDER_FAILED);
+		orderStatusService.updateStatus(new StatusUpdateDTO(orderId, Constants.ORDER_FAILED, "---"));
 		orderRepository.save(order);
 		return payment;
 	}
@@ -65,7 +79,10 @@ public class PaymentService {
 		// Implementation of the payment logic goes here.
 		// It should handle the payment process and return the transaction ID.
 		// This is just a placeholder return for the sake of example.
-		Integer hashCode = userId.hashCode();
-		return hashCode.toString();
+		if (userId != null) {
+			Integer hashCode = userId.hashCode();
+			return hashCode.toString();
+		}
+		return "noUserIdExist";
 	}
 }

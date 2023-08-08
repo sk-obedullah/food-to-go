@@ -1,5 +1,7 @@
 package com.ftg.restaurantservice.controller;
 
+import java.awt.Menu;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -83,10 +85,10 @@ public class RestaurantControllerAdmin {
 	// --------------------MenuItem Specific Controller EndPoints-----------------//
 
 	@PostMapping("/{restaurantId}/menu-items")
-	public ResponseEntity<MenuItem> createMenuItem(@RequestBody MenuItemDTO menuItem) {
+	public ResponseEntity<MenuItem> createMenuItem(@RequestBody MenuItemDTO menuItem,@PathVariable Long restaurantId) {
 		try {
-			int restaurantId = menuItem.getRestaurantId();
-			MenuItem createMenuItem = restaurantService.createMenuItem(new Long(menuItem.getRestaurantId()), menuItem);
+			 
+			MenuItem createMenuItem = restaurantService.createMenuItem( restaurantId, menuItem);
 			return ResponseEntity.ok().body(createMenuItem);
 		} catch (ResourceNotFoundException e) {
 			logger.error("Restaurant not found with id {}: {}", menuItem.getRestaurantId(), e.getMessage());
@@ -109,6 +111,21 @@ public class RestaurantControllerAdmin {
 			logger.error("Failed to delete menu item with id {} for restaurant with id {}: {}", menuItemId,
 					restaurantId, e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete menu item");
+		}
+	}
+	
+	@PutMapping("/{restaurantId}/menu-items/{menuItemId}")
+	public ResponseEntity<?> updateMenuItem(@PathVariable Long restaurantId, @PathVariable Long menuItemId,@RequestBody MenuItem menuItem) {
+		try {
+			restaurantService.updateMenuItem(restaurantId, menuItemId,menuItem);
+			return ResponseEntity.ok(" menuItem updated successfully");
+		} catch (ResourceNotFoundException e) {
+			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
+		} catch (Exception e) {
+			logger.error("Failed to update menu item with id {} for restaurant with id {}: {}", menuItemId,
+					restaurantId, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update menu item");
 		}
 	}
 

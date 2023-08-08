@@ -1,8 +1,5 @@
 package com.ftg.accountservice.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,7 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +26,7 @@ import lombok.AllArgsConstructor;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("api/user-service")
+@RequestMapping("api/user/user-service")
 @AllArgsConstructor
 public class UserController {
 
@@ -48,7 +44,7 @@ public class UserController {
 	@PostMapping("/register")
 	public ResponseEntity<UserDTO> registerUser(@RequestBody UserDTO userDTO) {
 		try {
-			User user=new User();
+			User user = new User();
 			user.setName(userDTO.getUserName());
 			user.setEmail(userDTO.getUserEmail());
 			user.setUserCity(userDTO.getUserCity());
@@ -62,30 +58,6 @@ public class UserController {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to register user");
 		}
 	}
-
-	@GetMapping()
-	public List<UserDTO> getAllUsers() {
-		List<UserDTO> userDTOs = new ArrayList<>();
-		List<User> users = userService.getAll();
-		for (User user : users) {
-			UserDTO userDto = new UserDTO();
-			userDto.setUserEmail(user.getEmail());
-			userDto.setUserId(user.getId().intValue());
-			userDto.setUserCity(user.getUserCity());
-			userDto.setUserMobile(user.getUserMobile());
-			userDto.setUserName(user.getName());
-			userDTOs.add(userDto);
-		}
-		return userDTOs;
-	}
-
-	@GetMapping("/user/{email}")
-	public User getUserByUserName(@PathVariable String email) {
-		User userByuserName = userService.getUserByuserName(email);
-		return userByuserName;
-	}
-
-	// ------------------------------------------------------------------------//
 
 	@PostMapping("/auth/token")
 	public String getToken(@RequestBody AuthRequest authRequest) {

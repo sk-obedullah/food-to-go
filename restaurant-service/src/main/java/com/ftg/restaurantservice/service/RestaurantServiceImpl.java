@@ -206,6 +206,26 @@ public class RestaurantServiceImpl implements RestauranSerive {
 			throw new IllegalStateException("Failed to delete menu item");
 		}
 	}
+	
+	public List<MenuItem> updateMenuItem(Long restaurantId, Long menuId,MenuItem menuItm) {
+		try {
+			Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
+			List<MenuItem> menuItem = restaurant.getMenuItem();
+			for(MenuItem item:menuItem) {
+				if(item.getId()==menuId) {
+					item.setCategory(menuItm.getCategory());
+					item.setPrice(menuItm.getPrice());
+					item.setDescription(menuItm.getDescription());
+					item.setImageUrl(menuItm.getImageUrl());
+				}
+			}
+			restaurant.setMenuItem(menuItem);
+			return restaurantRepository.save(restaurant).getMenuItem();
+		} catch (Exception e) {
+			logger.error("Failed to update address for restaurant with id {}: {}", restaurantId, e.getMessage());
+			throw new IllegalStateException("Failed to update address");
+		}
+	}
 
 	public MenuItem getMenuItemByMenuId(Long restaurantId, Long itemId) {
 		Optional<Restaurant> optionalRestaurant;
