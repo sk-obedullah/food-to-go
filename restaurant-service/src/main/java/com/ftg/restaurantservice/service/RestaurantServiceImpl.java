@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.ftg.restaurantservice.dto.MenuItemDTO;
 import com.ftg.restaurantservice.dto.RestaurantDTO;
 import com.ftg.restaurantservice.exception.ResourceNotFoundException;
 import com.ftg.restaurantservice.model.Address;
@@ -33,11 +34,16 @@ public class RestaurantServiceImpl implements RestauranSerive {
 	@Override
 	public RestaurantDTO addRestaurant(RestaurantDTO restaurantDTO) {
 		try {
-			System.out.println("------------");
-			Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
+			Restaurant restaurant = new Restaurant();
+			restaurant.setName(restaurantDTO.getName());
+			restaurant.setOpeningHour(restaurantDTO.getOpeningHour());
+			Address address = new Address();
+			address.setAddress(restaurantDTO.getRestaurantLocation());
+			restaurant.setAddress(address);
+			restaurant.setImageUrl(restaurantDTO.getRestaurantImage());
 			Restaurant save = restaurantRepository.save(restaurant);
 			RestaurantDTO dto = new RestaurantDTO(save.getRestaurantId(), save.getName(), save.getMenuItem(),
-					save.getAddress(), save.getContactDetails(), save.getOpeningHour());
+					save.getAddress(),save.getAddress().getAddress(), save.getContactDetails(),"", save.getOpeningHour());
 			return dto;
 		} catch (Exception e) {
 			logger.error("Failed to create restaurant: {}", e.getMessage());
@@ -167,8 +173,15 @@ public class RestaurantServiceImpl implements RestauranSerive {
 		}
 	}
 
-	public MenuItem createMenuItem(Long restaurantId, MenuItem menuItem) {
+	public MenuItem createMenuItem(Long restaurantId, MenuItemDTO menuItemDto) {
 		try {
+			MenuItem menuItem=new MenuItem();
+			menuItem.setName(menuItemDto.getItemName());
+			menuItem.setImageUrl(menuItemDto.getItemImage());
+			menuItem.setCategory(menuItemDto.getItemType());
+			menuItem.setDescription(menuItemDto.getItemDescription());
+			menuItem.setPrice(Double.parseDouble(menuItemDto.getItemPrice()));
+			
 			Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
 			menuItem.setRestaurant(restaurant);
 			restaurant.getMenuItem().add(menuItem);
@@ -191,6 +204,26 @@ public class RestaurantServiceImpl implements RestauranSerive {
 			logger.error("Failed to delete menu item with id {} for restaurant with id {}: {}", menuItemId,
 					restaurantId, e.getMessage());
 			throw new IllegalStateException("Failed to delete menu item");
+		}
+	}
+	
+	public List<MenuItem> updateMenuItem(Long restaurantId, Long menuId,MenuItem menuItm) {
+		try {
+			Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
+			List<MenuItem> menuItem = restaurant.getMenuItem();
+			for(MenuItem item:menuItem) {
+				if(item.getId()==menuId) {
+					item.setCategory(menuItm.getCategory());
+					item.setPrice(menuItm.getPrice());
+					item.setDescription(menuItm.getDescription());
+					item.setImageUrl(menuItm.getImageUrl());
+				}
+			}
+			restaurant.setMenuItem(menuItem);
+			return restaurantRepository.save(restaurant).getMenuItem();
+		} catch (Exception e) {
+			logger.error("Failed to update address for restaurant with id {}: {}", restaurantId, e.getMessage());
+			throw new IllegalStateException("Failed to update address");
 		}
 	}
 

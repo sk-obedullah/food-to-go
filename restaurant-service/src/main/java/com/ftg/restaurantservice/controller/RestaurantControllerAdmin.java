@@ -1,9 +1,12 @@
 package com.ftg.restaurantservice.controller;
 
+import java.awt.Menu;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.ftg.restaurantservice.dto.MenuItemDTO;
 import com.ftg.restaurantservice.dto.RestaurantDTO;
 import com.ftg.restaurantservice.exception.ResourceNotFoundException;
 import com.ftg.restaurantservice.model.Address;
@@ -22,6 +26,7 @@ import com.ftg.restaurantservice.service.RestaurantServiceImpl;
 
 import lombok.AllArgsConstructor;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("api/admin/restaurant-service")
 @AllArgsConstructor
@@ -62,18 +67,34 @@ public class RestaurantControllerAdmin {
 		}
 	}
 
-	// --------------------MenuItem Specific Controller EndPoints-----------------//
-
-	@PostMapping("/{restaurantId}/menu-items")
-	public ResponseEntity<MenuItem> createMenuItem(@PathVariable Long restaurantId, @RequestBody MenuItem menuItem) {
+	@DeleteMapping("/{restaurantId}")
+	public ResponseEntity<?> deleterestaurant(@PathVariable Long restaurantId ) {
 		try {
-			MenuItem createMenuItem = restaurantService.createMenuItem(restaurantId, menuItem);
-			return ResponseEntity.ok().body(createMenuItem);
+			restaurantService.deleteRestaurant(restaurantId);
+			return ResponseEntity.ok("deleted successfully");
 		} catch (ResourceNotFoundException e) {
 			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
 		} catch (Exception e) {
-			logger.error("Failed to create menu item for restaurant with id {}: {}", restaurantId, e.getMessage());
+			logger.error("Failed to delete Restaurant  with id "+restaurantId,
+					restaurantId, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete Restaurant");
+		}
+	}
+	
+	// --------------------MenuItem Specific Controller EndPoints-----------------//
+
+	@PostMapping("/{restaurantId}/menu-items")
+	public ResponseEntity<MenuItem> createMenuItem(@RequestBody MenuItemDTO menuItem,@PathVariable Long restaurantId) {
+		try {
+			 
+			MenuItem createMenuItem = restaurantService.createMenuItem( restaurantId, menuItem);
+			return ResponseEntity.ok().body(createMenuItem);
+		} catch (ResourceNotFoundException e) {
+			logger.error("Restaurant not found with id {}: {}", menuItem.getRestaurantId(), e.getMessage());
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
+		} catch (Exception e) {
+			logger.error("Failed to create menu item for restaurant with id {}: {}", menuItem.getRestaurantId(), e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create menu item");
 		}
 	}
@@ -90,6 +111,21 @@ public class RestaurantControllerAdmin {
 			logger.error("Failed to delete menu item with id {} for restaurant with id {}: {}", menuItemId,
 					restaurantId, e.getMessage());
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete menu item");
+		}
+	}
+	
+	@PutMapping("/{restaurantId}/menu-items/{menuItemId}")
+	public ResponseEntity<?> updateMenuItem(@PathVariable Long restaurantId, @PathVariable Long menuItemId,@RequestBody MenuItem menuItem) {
+		try {
+			restaurantService.updateMenuItem(restaurantId, menuItemId,menuItem);
+			return ResponseEntity.ok(" menuItem updated successfully");
+		} catch (ResourceNotFoundException e) {
+			logger.error("Restaurant not found with id {}: {}", restaurantId, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
+		} catch (Exception e) {
+			logger.error("Failed to update menu item with id {} for restaurant with id {}: {}", menuItemId,
+					restaurantId, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update menu item");
 		}
 	}
 

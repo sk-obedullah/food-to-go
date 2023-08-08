@@ -24,8 +24,13 @@ public class RestaurantDTO {
 	private List<MenuItem> menuItem;
 
 	private Address address;
+	
+	private String restaurantLocation;
 
 	private ContactDetails contactDetails;
+	
+	private String restaurantImage;
 
 	private String openingHour;
+	
 }

@@ -15,6 +15,7 @@ import org.springframework.web.client.ResourceAccessException;
 import com.ftg.orderservice.dto.OrderDTO;
 import com.ftg.orderservice.ecxception.ResourceNotFoundException;
 import com.ftg.orderservice.models.Order;
+import com.ftg.orderservice.models.OrderStatus;
 import com.ftg.orderservice.models.Payment;
 import com.ftg.orderservice.repository.OrderRepository;
 import com.ftg.orderservice.rs.dto.MenuItem;
@@ -31,10 +32,12 @@ public class OrderServiceImpl {
 	private OrderRepository orderRepository;
 	private ModelMapper modelMapper;
 	private RestaurantClient restaurantClient;
+	private OrderStatusService orderStatusService;
 
 	public Order createOrder(OrderDTO orderDTO) {
 		logger.info("Creating order...");
 		List<MenuItem> menuItems = new ArrayList<>();
+		OrderStatus status = new OrderStatus();
 		try {
 			Order order = new Order();
 			order.setOrderId(generateOrderId());
@@ -43,6 +46,7 @@ public class OrderServiceImpl {
 						.getMenuItemByMenuId(orderDTO.getRestaurantId(), itemId);
 				menuItems.add(menuItemByMenuId.getBody());
 			}
+
 			order.setStatus(Constants.ORDER_CREATED);
 			order.setMenuItems(orderDTO.getItems());
 			order.setResturantId(orderDTO.getRestaurantId());
@@ -53,7 +57,15 @@ public class OrderServiceImpl {
 			order.setPayment(payment);
 			order.setUserId(orderDTO.getUserId());
 			order.setTotalAmount(payment.getAmount());
-			return orderRepository.save(order);
+			//status.setUserName(order.getUserId());
+			status.setOrderId(order.getOrderId());
+			status.setDuration("15min");
+			status.setOrderStatus(Constants.ORDER_CREATED);
+			Order save = orderRepository.save(order);
+			if (save != null) {
+				orderStatusService.addStatus(status);
+			}
+			return save;
 		} catch (Exception e) {
 			logger.error("Error occurred while creating the order.", e);
 			throw e;

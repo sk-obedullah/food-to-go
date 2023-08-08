@@ -12,14 +12,18 @@ import lombok.Setter;
 public class MenuItemDTO {
 
 	private Long id;
+	
+	private int restaurantId;
 
-	private String name;
+	private String itemName;
 
-	private double price;
+	private String itemPrice;
 
-	private String imageUrl;
+	private String itemImage;
+	
+	private String itemPrepTime;
 
-	private String Category;
+	private String itemType;
 
-	private String Description;
+	private String itemDescription;
 }
